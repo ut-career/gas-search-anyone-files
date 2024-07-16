@@ -1,0 +1,35 @@
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+// The code in this function runs when the page is loaded.
+$(function() {
+  google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onError).doProcess();
+});
+
+function onSuccess(files) {
+  if (files.length === 0) {
+    replaceContent('おめでとうございます！「リンクを知っている全員」になっているファイルは見つかりませんでした！');
+    return;
+  }
+  const $ul = $('<ul />')
+  const $liList = files.map(file => {
+    const $li = $('<li />')
+    const $a = $('<a />', {
+      // urlは`/`を`\/`とエスケープする必要がある
+      // https://stackoverflow.com/questions/61692427/google-app-script-url-in-template-literal-results-in-uncaught-syntaxerror-une
+      href: `https:\/\/drive.google.com/open?id=${file.id}`,
+      target: '_blank',
+      rel: 'noopener noreferrer'
+    }).append(file.name)
+    return $li.append($a);
+  });
+  replaceContent($ul.append($liList));
+}
+
+function onError() {
+  replaceContent('エラーが発生しました。システム課まで問い合わせください。')
+}
+
+function replaceContent(content) {
+  $('#content').empty().append(content);
+}
+</script>
